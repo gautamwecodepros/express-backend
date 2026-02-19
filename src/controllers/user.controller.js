@@ -3,7 +3,7 @@ import { User } from "../models/ecommerce/user.models.js";
 export const registerUser = async (req, res) => {
     try {
         const data = await User.create({
-            username: req.body.username || "laddlaaaa",
+            username: req.body.username,
             email: req.body.email,
             role: req.body.role,
             address: req.body.address,
