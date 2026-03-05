@@ -1,4 +1,4 @@
-import express from "express";
+import { Router } from "express";
 import {
     createUser,
     getUser,
@@ -7,20 +7,22 @@ import {
     updateUser,
 } from "../controllers/user.controllers.js";
 import { filterUserUpdate } from "../middlewares/filterUserUpdate.js";
+import { loginUser } from "../controllers/auth.controller.js";
 import { protect } from "../middlewares/auth.middleware.js";
-import { loginUser, logoutUser } from "../controllers/auth.controller.js";
 
-const router = express.Router();
+const router = Router();
 
 //Public routes
-router.post("/create", createUser);  
-router.post("/login", loginUser);
+router.route("/create").post(createUser);
+router.route("/login").post(loginUser);
 
 //Authorized routes
-router.get("/", protect, getUser);
-router.get("/rooms", protect, getUploadedRooms);
-router.patch("/", protect, filterUserUpdate, updateUser);
-router.delete("/", protect, deleteUser);
-router.post("/logout", logoutUser);
+router
+    .route("/")
+    .get(protect, getUser)
+    .patch(protect, filterUserUpdate, updateUser)
+    .delete(protect, deleteUser);
+router.route("/rooms").get(protect, getUploadedRooms);
+// router.route("/logout").post();
 
 export default router;

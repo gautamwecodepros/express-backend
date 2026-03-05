@@ -55,6 +55,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 
 const transformUser = (doc, ret) => {
     delete ret.password;
+    delete ret.refreshToken;
     delete ret.__v;
     return ret;
 };
@@ -62,7 +63,6 @@ const transformUser = (doc, ret) => {
 userSchema.set("toJSON", { transform: transformUser });
 userSchema.set("toObject", { transform: transformUser });
 
-//jwt token generations
 userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {

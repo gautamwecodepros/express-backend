@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import { Router } from "express";
 import {
     createRoom,
     getAllRooms,
@@ -7,11 +7,9 @@ import {
 } from "../controllers/room.controller.js";
 import { filterRoomUpdate } from "../middlewares/filterRoomUpdate.js";
 
-const router = express.Router();
+const router = Router();
 
-router.post("/", createRoom);
-router.get("/", getAllRooms);
-router.patch("/:id", filterRoomUpdate, updateRoom);
-router.delete("/:id", deleteRoom);
+router.route("/").post(createRoom).get(getAllRooms);
+router.route("/:id").patch(filterRoomUpdate, updateRoom).delete(deleteRoom);
 
 export default router;

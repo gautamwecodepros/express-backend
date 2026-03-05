@@ -1,24 +1,26 @@
-import { User } from "../models/user.models";
-import { verifyAccessToken } from "../utils/jwt.varify.utils.js";
+import { User } from "../models/user.models.js";
+import { verifyAccessToken } from "../utils/jwtVerifications.js";
 
-export const protect = async (req, res, next) => {
+const protect = async (req, res, next) => {
     try {
-        const token =
-            req.cookies.accessToken ||
-            req.header("Authorization").replace("Bearer", "");
+        const token = req.cookies?.accessToken;
 
-        if (!token) throw new Error("Unauuthorized");
+        if (!token) throw new Error("Token not found");
 
         const decoded = verifyAccessToken(token);
 
         const user = await User.findById(decoded._id);
-        if (!user) throw new Error("Unauuthorized");
+
+        if (!user) throw new Error("User not found");
 
         req.user = user;
         next();
     } catch (error) {
         res.status(401).json({
-            error: error.message,
+            success: false,
+            message: error.message,
         });
     }
 };
+
+export { protect };
