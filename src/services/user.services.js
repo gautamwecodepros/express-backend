@@ -1,74 +1,57 @@
 import { Room } from "../models/room.models.js";
 import { User } from "../models/user.models.js";
+import { ApiError } from "../utils/ApiError.js";
 
-const createUserDB = async (userData) => {
-    try {
-        const user = await User.create({
-            fullName: userData.fullName,
-            email: userData.email,
-            password: userData.password,
-            phone: userData.phone,
-        });
-        return user;
-    } catch (error) {
-        throw error;
-    }
+const registerUserDB = async (userData) => {
+    const user = await User.create({
+        fullName: userData.fullName,
+        email: userData.email,
+        password: userData.password,
+        phone: userData.phone,
+    });
+    if (!user) throw ApiError(404, "User not found");
+    return user;
 };
 
 const getUserDB = async (userId) => {
-    try {
-        const user = await User.findById(userId);
+    const user = await User.findById(userId);
 
-        if (!user) {
-            throw new Error("User not found!!!");
-        }
-
-        return user;
-    } catch (error) {
-        throw error;
+    if (!user) {
+        throw new ApiError(404, "User not found");
     }
+
+    return user;
 };
 
 const updateUserDB = async (userId, payload) => {
-    try {
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { $set: payload },
-            {
-                returnDocument: "after",
-                runValidators: true,
-            }
-        );
-
-        return updatedUser;
-    } catch (error) {
-        throw error;
-    }
+    const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $set: payload },
+        {
+            returnDocument: "after",
+            runValidators: true,
+        }
+    );
+    // console.log(updatedUser);
+    if (!updatedUser) throw new ApiError(404, "User not found");
+    return updatedUser;
 };
 
 const getUploadedRoomsDB = async (userId) => {
-    try {
-        const rooms = await Room.find({ ownerId: userId });
-        if (rooms.length === 0) {
-            throw new Error("No rooms are listed");
-        }
-        return rooms;
-    } catch (error) {
-        throw error;
+    const rooms = await Room.find({ ownerId: userId });
+    if (rooms.length === 0) {
+        throw new ApiError(404, "No rooms are listed");
     }
+    return rooms;
 };
 
 const deleteUserDB = async (userId) => {
-    try {
-        await User.findByIdAndDelete(userId);
-        return { message: "User is successfully deleted." };
-    } catch (error) {
-        throw error;
-    }
+    await User.findByIdAndDelete(userId);
+    return { message: "User is successfully deleted." };
 };
 
 export {
-    createUserDB,
+    registerUserDB,
     getUserDB,
     updateUserDB,
     deleteUserDB,

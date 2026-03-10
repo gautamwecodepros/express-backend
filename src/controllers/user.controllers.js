@@ -1,101 +1,53 @@
 import {
-    createUserDB,
     updateUserDB,
     deleteUserDB,
     getUserDB,
     getUploadedRoomsDB,
 } from "../services/user.services.js";
+import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
-const createUser = async (req, res) => {
-    try {
-        const data = await createUserDB(req.body);
+const getUser = asyncHandler(async (req, res) => {
+    const data = await getUserDB(req.user._id);
 
-        res.status(201).json({
-            success: true,
-            data,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message,
-        });
+    if (!data) throw new ApiError(404, "User not found!!!");
+
+    return res.status(200).json({
+        success: true,
+        data,
+    });
+});
+
+const updateUser = asyncHandler(async (req, res) => {
+    const data = await updateUserDB(req.user._id, req.body);
+    // console.log(data);
+    if (!data) {
+        throw new ApiError(404, "User not found");
     }
-};
 
-const getUser = async (req, res) => {
-    try {
-        const data = await getUserDB(req.user._id);
+    return res.status(200).json({
+        success: true,
+        data,
+    });
+});
 
-        if (!data) {
-            res.status(404).json({
-                message: "User not found!!!",
-            });
-        }
+const getUploadedRooms = asyncHandler(async (req, res) => {
+    const data = await getUploadedRoomsDB(req.user._id);
 
-        res.status(200).json({
-            success: true,
-            data,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message,
-        });
-    }
-};
+    if (!data) throw new ApiError(404, "No rooms are listed");
 
-const updateUser = async (req, res) => {
-    try {
-        const data = await updateUserDB(req.user._id, req.body);
+    return res.status(200).json({
+        success: true,
+        data,
+    });
+});
 
-        if (!data) {
-            return res.status(404).json({
-                message: "User not found",
-            });
-        }
+const deleteUser = asyncHandler(async (req, res) => {
+    await deleteUserDB(req.user._id);
 
-        res.status(200).json({
-            success: true,
-            data,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message,
-        });
-    }
-};
-
-const getUploadedRooms = async (req, res) => {
-    try {
-        const data = await getUploadedRoomsDB(req.user._id);
-
-        res.status(200).json({
-            success: true,
-            data,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message,
-        });
-    }
-};
-
-const deleteUser = async (req, res) => {
-    try {
-        await deleteUserDB(req.user._id);
-
-        res.status(204).json({
-            success: true,
-            message: "User deleted successfully",
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message,
-        });
-    }
-};
-
-export { createUser, updateUser, deleteUser, getUser, getUploadedRooms };
+    return res.status(200).json({
+        success: true,
+        message: "User deleted successfully",
+    });
+});
+export { updateUser, deleteUser, getUser, getUploadedRooms };

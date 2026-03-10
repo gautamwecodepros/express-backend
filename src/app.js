@@ -2,7 +2,9 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRouter from "./routes/user.routes.js";
-import roomRouter from "./routes//room.routes.js";
+import roomRouter from "./routes/room.routes.js";
+import authRouter from "./routes/auth.routes.js";
+import { errorHandler } from "./middlewares/errorHandler.middleware.js";
 
 const app = express();
 
@@ -15,11 +17,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 //Routes
-app.get("/", (req, res) => {
-    res.send("Hello World!");
-});
-
+app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/room", roomRouter);
 
+app.use(errorHandler);
 export default app;

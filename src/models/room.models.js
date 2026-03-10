@@ -25,7 +25,7 @@ const roomSchema = new mongoose.Schema(
         listingType: {
             type: String,
             required: true,
-            enum: ["full-room", "roommate"],
+            enum: ["fullRoom", "roomMate"],
             default: "full-room",
         },
         description: {
@@ -53,9 +53,13 @@ const roomSchema = new mongoose.Schema(
             required: true,
             validate: {
                 validator: function (value) {
-                    return value <= this.totalCapacity;
+                    if (this.listingType === "fullRoom") return value === 0;
+
+                    if (this.listingType === "roomMate")
+                        return value < this.totalCapacity;
                 },
-                message: "Current occupants can't exceed the total capacity",
+                message:
+                    "Can't have Current Occupants if type is full room and can't exceed the total capacity ",
             },
         },
         preferredGender: {

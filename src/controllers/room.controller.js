@@ -4,82 +4,48 @@ import {
     updateRoomDB,
     deleteRoomDB,
 } from "../services/room.services.js";
+import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
-const createRoom = async (req, res) => {
-    try {
-        const data = await createRoomDB(req.body);
+const createRoom = asyncHandler(async (req, res) => {
+    const data = await createRoomDB(req.body);
 
-        if (!data) {
-            res.status(400).json({
-                message: "Bad request",
-            });
-        }
+    if (!data) throw new ApiError(400, "Bad request");
 
-        res.status(201).json({
-            success: true,
-            data,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error,
-        });
-    }
-};
+    res.status(201).json({
+        success: true,
+        data,
+    });
+});
 
-const getAllRooms = async (req, res) => {
-    try {
-        const data = await getAllRoomsDB();
+const getAllRooms = asyncHandler(async (req, res) => {
+    const data = await getAllRoomsDB();
 
-        res.status(200).json({
-            success: true,
-            data,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error,
-        });
-    }
-};
+    if (!data) throw new ApiError(404, "Rooms not found");
+    res.status(200).json({
+        success: true,
+        data,
+    });
+});
 
-const updateRoom = async (req, res) => {
-    try {
-        const data = await updateRoomDB(req.params.id, req.filteredUpdates);
+const updateRoom = asyncHandler(async (req, res) => {
+    const data = await updateRoomDB(req.params.id, req.filteredUpdates);
 
-        if (!data) {
-            res.status(404).json({
-                success: false,
-                message: "Room not found",
-            });
-        }
+    if (!data) throw new ApiError(404, "Rooms not found");
 
-        res.status(200).json({
-            success: true,
-            data,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error,
-        });
-    }
-};
+    res.status(200).json({
+        success: true,
+        data,
+    });
+});
 
-const deleteRoom = async (req, res) => {
-    try {
-        await deleteRoomDB(req.params.id);
+const deleteRoom = asyncHandler(async (req, res) => {
+    await deleteRoomDB(req.params.id);
 
-        res.status(204).json({
-            success: true,
-            message: "Room deleted successfully",
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error,
-        });
-    }
-};
+    res.status(204).json({
+        success: true,
+        message: "Room deleted successfully",
+    });
+});
 
 export { createRoom, getAllRooms, updateRoom, deleteRoom };
